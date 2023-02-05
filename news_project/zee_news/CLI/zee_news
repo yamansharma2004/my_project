@@ -1,0 +1,35 @@
+import pandas as pd
+import numpy
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+import requests
+try:
+    a=requests.get("http://google.com")
+    if "200" in str(a):
+        list=[]
+        link_list=[]
+        website="https://zeenews.india.com/"
+        path=" " # add path for chromedriver.exe
+        service=Service(executable_path=path)
+        option=webdriver.ChromeOptions()
+        option.headless=True
+        option.add_experimental_option('excludeSwitches',['enable-logging'])
+        driver=webdriver.Chrome(service=service,options=option)
+        driver.get(website)
+        contaner=driver.find_elements(by="xpath",value='//div[@class="news_description"]')
+        for i in contaner:
+            list1=i.find_element(by="xpath",value="./a").get_attribute("title")
+            link=i.find_element(by="xpath",value="./a").get_attribute("href")
+            link_list.append(link)
+            list.append(list1)
+        links={"heading":list,"links":link_list}
+        a=numpy.array(list)
+        b=numpy.array(link_list)
+        pd.set_option('display.max_rows',None)
+        pd.set_option('display.max_columns',None)
+        pd.set_option('display.width',None)
+        pd.set_option('display.max_colwidth',None)
+        print(pd.DataFrame(links))
+        driver.close()
+except requests.exceptions.ConnectionError: 
+    print("No internet")
